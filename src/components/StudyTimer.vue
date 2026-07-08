@@ -4,23 +4,24 @@
 
     <label>学习科目</label>
     <select v-model="subject">
-      <option>生理</option>
-      <option>生化</option>
-      <option>病理</option>
-      <option>病生</option>
-      <option>免疫</option>
+      <option
+        v-for="item in SUBJECTS"
+        :key="item"
+      >
+        {{ item }}
+      </option>
     </select>
 
     <label>学习章节</label>
     <input
       v-model="chapter"
-      placeholder="例如：神经系统"
+      placeholder="例如：神经系统 / 阅读理解 / 马原"
     />
 
     <label>学习内容</label>
     <input
       v-model="content"
-      placeholder="例如：动作电位"
+      placeholder="例如：动作电位 / 长难句 / 唯物辩证法"
     />
 
     <h1>{{ time }}</h1>
@@ -38,12 +39,13 @@
 <script setup lang="ts">
 import { ref, onUnmounted } from "vue"
 import type { StudyRecord } from "../types/study"
+import { SUBJECTS } from "../constants/subjects"
 
 const emit = defineEmits<{
   (e: "finish", record: StudyRecord): void
 }>()
 
-const subject = ref("生理")
+const subject = ref(SUBJECTS[0])
 const chapter = ref("")
 const content = ref("")
 

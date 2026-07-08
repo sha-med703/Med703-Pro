@@ -5,11 +5,12 @@
 
       <label>科目</label>
       <select v-model="form.subject">
-        <option>生理</option>
-        <option>生化</option>
-        <option>病理</option>
-        <option>病生</option>
-        <option>免疫</option>
+        <option
+          v-for="item in SUBJECTS"
+          :key="item"
+        >
+          {{ item }}
+        </option>
       </select>
 
       <label>章节</label>
@@ -34,6 +35,7 @@
 <script setup lang="ts">
 import { reactive, watch } from "vue"
 import type { StudyRecord } from "../types/study"
+import { SUBJECTS } from "../constants/subjects"
 
 const props = defineProps<{
   record: StudyRecord

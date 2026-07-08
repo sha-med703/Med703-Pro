@@ -28,8 +28,8 @@
       </template>
 
       <SubjectPieChart
-        :subjects="subjectStats.map(item => item.subject)"
-        :durations="subjectStats.map(item => item.duration)"
+        :subjects="activeSubjectStats.map(item => item.subject)"
+        :durations="activeSubjectStats.map(item => item.duration)"
       />
     </el-card>
 
@@ -53,6 +53,7 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import { useStudyStore } from "../stores/study"
+import { SUBJECTS } from "../constants/subjects"
 import StudyTrendChart from "../components/report/StudyTrendChart.vue"
 import SubjectPieChart from "../components/report/SubjectPieChart.vue"
 
@@ -76,10 +77,8 @@ const totalTimeText = computed(() => {
   return formatTime(totalSeconds.value)
 })
 
-const subjects = ["生理", "生化", "病理", "病生", "免疫"]
-
 const subjectStats = computed(() => {
-  return subjects.map(subject => {
+  return SUBJECTS.map(subject => {
     const duration = studyStore.records
       .filter(item => item.subject === subject)
       .reduce((sum, item) => sum + (item.duration || 0), 0)
@@ -89,6 +88,10 @@ const subjectStats = computed(() => {
       duration
     }
   })
+})
+
+const activeSubjectStats = computed(() => {
+  return subjectStats.value.filter(item => item.duration > 0)
 })
 
 const last7Days = computed(() => {

@@ -13,16 +13,21 @@
       @change="handleSubject"
     >
       <option value="全部">全部科目</option>
-      <option value="生理">生理</option>
-      <option value="生化">生化</option>
-      <option value="病理">病理</option>
-      <option value="病生">病生</option>
-      <option value="免疫">免疫</option>
+
+      <option
+        v-for="item in SUBJECTS"
+        :key="item"
+        :value="item"
+      >
+        {{ item }}
+      </option>
     </select>
   </div>
 </template>
 
 <script setup lang="ts">
+import { SUBJECTS } from "../constants/subjects"
+
 defineProps<{
   keyword: string
   subject: string
