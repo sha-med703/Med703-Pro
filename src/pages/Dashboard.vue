@@ -5,16 +5,24 @@
     <div class="section-title">① 倒计时</div>
     <CountdownCard />
 
-    <div class="section-title">② 今日统计</div>
+    <div class="section-title">② 连续学习</div>
+    <StreakCard :days="studyStore.streakDays" />
+
+    <div class="section-title">③ 今日待复习</div>
+    <TodayReviewCard />
+
+    <div class="section-title">④ 今日统计</div>
     <TodayStats :records="studyStore.records" />
 
-    <div class="section-title">③ 今日目标</div>
+    <div class="section-title">⑤ 今日目标</div>
     <GoalCard :records="studyStore.records" />
   </div>
 </template>
 
 <script setup lang="ts">
 import CountdownCard from "../components/CountdownCard.vue"
+import StreakCard from "../components/StreakCard.vue"
+import TodayReviewCard from "../components/TodayReviewCard.vue"
 import TodayStats from "../components/TodayStats.vue"
 import GoalCard from "../components/GoalCard.vue"
 import { useStudyStore } from "../stores/study"
