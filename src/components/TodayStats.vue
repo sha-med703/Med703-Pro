@@ -1,6 +1,8 @@
 <template>
-  <div class="card">
-    <h2>📊 今日统计</h2>
+  <el-card class="card">
+    <template #header>
+      <strong>📊 今日统计</strong>
+    </template>
 
     <div class="item">
       <span>学习次数</span>
@@ -11,7 +13,7 @@
       <span>学习总时长</span>
       <strong>{{ totalTime }}</strong>
     </div>
-  </div>
+  </el-card>
 </template>
 
 <script setup lang="ts">
@@ -40,10 +42,6 @@ const totalTime = computed(() => {
 <style scoped>
 .card {
   margin-top: 30px;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.08);
 }
 
 .item {

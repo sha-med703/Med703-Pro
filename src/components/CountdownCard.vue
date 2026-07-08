@@ -1,41 +1,75 @@
 <template>
-  <div class="card">
-    <h2>⏳ 考研倒计时</h2>
+  <el-card class="card">
+    <template #header>
+      <strong>🎯 今日学习目标</strong>
+    </template>
 
-    <div class="days">
-      {{ daysLeft }}
+    <div
+      v-for="goal in goals"
+      :key="goal.subject"
+      class="goal"
+    >
+      <div class="goal-title">
+        <span>{{ goal.subject }}</span>
+        <span>{{ getProgress(goal.subject) }}%</span>
+      </div>
+
+      <el-progress
+        :percentage="getProgress(goal.subject)"
+        :stroke-width="12"
+      />
+
+      <p>目标：{{ goal.targetHours }} 小时</p>
     </div>
-
-    <p>距离 703 考研还有 {{ daysLeft }} 天</p>
-  </div>
+  </el-card>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue"
+import type { StudyRecord } from "../types/study"
 
-const examDate = new Date("2026-12-20")
+const props = defineProps<{
+  records?: StudyRecord[]
+}>()
 
-const daysLeft = computed(() => {
-  const today = new Date()
-  const diff = examDate.getTime() - today.getTime()
-  return Math.max(Math.ceil(diff / (1000 * 60 * 60 * 24)), 0)
-})
+const goals = [
+  { subject: "生理", targetHours: 2 },
+  { subject: "生化", targetHours: 1 },
+  { subject: "病理", targetHours: 1 },
+  { subject: "病生", targetHours: 1 },
+  { subject: "免疫", targetHours: 1 }
+]
+
+function getProgress(subject: string) {
+  const records = props.records ?? []
+
+  const totalSeconds = records
+    .filter(item => item.subject === subject)
+    .reduce((sum, item) => sum + (item.duration || 0), 0)
+
+  const goal = goals.find(item => item.subject === subject)
+
+  if (!goal) return 0
+
+  return Math.min(
+    Math.floor((totalSeconds / (goal.targetHours * 3600)) * 100),
+    100
+  )
+}
 </script>
 
 <style scoped>
 .card {
   margin-top: 30px;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.08);
-  text-align: center;
 }
 
-.days {
-  font-size: 48px;
+.goal {
+  margin-bottom: 22px;
+}
+
+.goal-title {
+  display: flex;
+  justify-content: space-between;
   font-weight: bold;
-  color: #2e8b57;
-  margin: 20px 0;
+  margin-bottom: 8px;
 }
 </style>

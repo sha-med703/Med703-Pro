@@ -2,14 +2,41 @@
   <div class="report-page">
     <h2>📈 学习报告</h2>
 
-    <div class="card">
-      <h3>📊 总览</h3>
+    <el-card class="card">
+      <template #header>
+        <strong>📊 总览</strong>
+      </template>
+
       <p>📚 学习总次数：{{ studyStore.records.length }} 次</p>
       <p>⏱ 学习总时长：{{ totalTimeText }}</p>
-    </div>
+    </el-card>
 
-    <div class="card">
-      <h3>📚 各科目学习时长</h3>
+    <el-card class="card">
+      <template #header>
+        <strong>📈 最近 7 天学习趋势</strong>
+      </template>
+
+      <StudyTrendChart
+        :dates="last7Days.map(item => item.date)"
+        :durations="last7Days.map(item => item.duration)"
+      />
+    </el-card>
+
+    <el-card class="card">
+      <template #header>
+        <strong>🥧 科目学习占比</strong>
+      </template>
+
+      <SubjectPieChart
+        :subjects="subjectStats.map(item => item.subject)"
+        :durations="subjectStats.map(item => item.duration)"
+      />
+    </el-card>
+
+    <el-card class="card">
+      <template #header>
+        <strong>📚 各科目学习时长</strong>
+      </template>
 
       <div
         v-for="item in subjectStats"
@@ -19,26 +46,15 @@
         <span>{{ item.subject }}</span>
         <strong>{{ formatTime(item.duration) }}</strong>
       </div>
-    </div>
-
-    <div class="card">
-      <h3>📅 最近 7 天学习趋势</h3>
-
-      <div
-        v-for="item in last7Days"
-        :key="item.date"
-        class="stat"
-      >
-        <span>{{ item.date }}</span>
-        <strong>{{ formatTime(item.duration) }}</strong>
-      </div>
-    </div>
+    </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue"
 import { useStudyStore } from "../stores/study"
+import StudyTrendChart from "../components/report/StudyTrendChart.vue"
+import SubjectPieChart from "../components/report/SubjectPieChart.vue"
 
 const studyStore = useStudyStore()
 
@@ -105,10 +121,6 @@ const last7Days = computed(() => {
 
 .card {
   margin-top: 20px;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.08);
 }
 
 .stat {
