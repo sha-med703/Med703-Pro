@@ -2,29 +2,79 @@
   <div class="settings-page">
     <h2>⚙️ 设置</h2>
 
-    <div class="card">
-      <button @click="clearData">
-        🗑 清空所有学习记录
-      </button>
+    <el-card class="card">
+      <template #header>
+        <strong>📅 考研日期</strong>
+      </template>
+
+      <el-date-picker
+        v-model="settingsStore.examDate"
+        type="date"
+        value-format="YYYY-MM-DD"
+        placeholder="选择考研日期"
+      />
+    </el-card>
+
+    <el-card class="card">
+      <template #header>
+        <strong>🎯 每日学习目标</strong>
+      </template>
+
+      <div
+        v-for="goal in settingsStore.goals"
+        :key="goal.subject"
+        class="goal-row"
+      >
+        <span>{{ goal.subject }}</span>
+
+        <el-input-number
+          v-model="goal.targetHours"
+          :min="0"
+          :step="0.5"
+        />
+
+        <span>小时</span>
+      </div>
+    </el-card>
+
+    <el-card class="card">
+      <template #header>
+        <strong>🗑 数据管理</strong>
+      </template>
+
+      <el-button type="danger" @click="clearData">
+        清空所有学习记录
+      </el-button>
 
       <p class="tip">
         注意：此操作不可恢复。
       </p>
-    </div>
+    </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ElMessageBox, ElMessage } from "element-plus"
 import { useStudyStore } from "../stores/study"
+import { useSettingsStore } from "../stores/settings"
 
 const studyStore = useStudyStore()
+const settingsStore = useSettingsStore()
 
 function clearData() {
-  if (confirm("确定要清空所有学习记录吗？")) {
+  ElMessageBox.confirm(
+    "确定要清空所有学习记录吗？此操作不可恢复。",
+    "危险操作",
+    {
+      confirmButtonText: "确认清空",
+      cancelButtonText: "取消",
+      type: "warning"
+    }
+  ).then(() => {
     studyStore.records.length = 0
     localStorage.removeItem("study-records")
-    alert("已清空学习记录。")
-  }
+    ElMessage.success("已清空学习记录")
+  })
 }
 </script>
 
@@ -35,19 +85,14 @@ function clearData() {
 
 .card {
   margin-top: 20px;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.08);
 }
 
-button {
-  background: #d9534f;
-  color: white;
-  border: none;
-  padding: 12px 18px;
-  border-radius: 8px;
-  cursor: pointer;
+.goal-row {
+  display: grid;
+  grid-template-columns: 80px 160px 40px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .tip {

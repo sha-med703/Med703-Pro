@@ -5,7 +5,7 @@
     </template>
 
     <div
-      v-for="goal in SUBJECT_GOALS"
+      v-for="goal in settingsStore.goals"
       :key="goal.subject"
       class="goal"
     >
@@ -26,11 +26,13 @@
 
 <script setup lang="ts">
 import type { StudyRecord } from "../types/study"
-import { SUBJECT_GOALS } from "../constants/subjects"
+import { useSettingsStore } from "../stores/settings"
 
 const props = defineProps<{
   records?: StudyRecord[]
 }>()
+
+const settingsStore = useSettingsStore()
 
 function getProgress(subject: string) {
   const records = props.records ?? []
@@ -39,9 +41,9 @@ function getProgress(subject: string) {
     .filter(item => item.subject === subject)
     .reduce((sum, item) => sum + (item.duration || 0), 0)
 
-  const goal = SUBJECT_GOALS.find(item => item.subject === subject)
+  const goal = settingsStore.goals.find(item => item.subject === subject)
 
-  if (!goal) return 0
+  if (!goal || goal.targetHours === 0) return 0
 
   return Math.min(
     Math.floor((totalSeconds / (goal.targetHours * 3600)) * 100),

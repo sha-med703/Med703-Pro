@@ -1,75 +1,47 @@
 <template>
-  <el-card class="card">
+  <el-card class="countdown-card">
     <template #header>
-      <strong>🎯 今日学习目标</strong>
+      <strong>⏳ 考研倒计时</strong>
     </template>
 
-    <div
-      v-for="goal in goals"
-      :key="goal.subject"
-      class="goal"
-    >
-      <div class="goal-title">
-        <span>{{ goal.subject }}</span>
-        <span>{{ getProgress(goal.subject) }}%</span>
-      </div>
-
-      <el-progress
-        :percentage="getProgress(goal.subject)"
-        :stroke-width="12"
-      />
-
-      <p>目标：{{ goal.targetHours }} 小时</p>
+    <div class="days">
+      {{ daysLeft }}
     </div>
+
+    <p>距离 703 考研还有 {{ daysLeft }} 天</p>
+    <p class="date">考试日期：{{ settingsStore.examDate }}</p>
   </el-card>
 </template>
 
 <script setup lang="ts">
-import type { StudyRecord } from "../types/study"
+import { computed } from "vue"
+import { useSettingsStore } from "../stores/settings"
 
-const props = defineProps<{
-  records?: StudyRecord[]
-}>()
+const settingsStore = useSettingsStore()
 
-const goals = [
-  { subject: "生理", targetHours: 2 },
-  { subject: "生化", targetHours: 1 },
-  { subject: "病理", targetHours: 1 },
-  { subject: "病生", targetHours: 1 },
-  { subject: "免疫", targetHours: 1 }
-]
+const daysLeft = computed(() => {
+  const examDate = new Date(settingsStore.examDate)
+  const today = new Date()
+  const diff = examDate.getTime() - today.getTime()
 
-function getProgress(subject: string) {
-  const records = props.records ?? []
-
-  const totalSeconds = records
-    .filter(item => item.subject === subject)
-    .reduce((sum, item) => sum + (item.duration || 0), 0)
-
-  const goal = goals.find(item => item.subject === subject)
-
-  if (!goal) return 0
-
-  return Math.min(
-    Math.floor((totalSeconds / (goal.targetHours * 3600)) * 100),
-    100
-  )
-}
+  return Math.max(Math.ceil(diff / (1000 * 60 * 60 * 24)), 0)
+})
 </script>
 
 <style scoped>
-.card {
+.countdown-card {
   margin-top: 30px;
+  text-align: center;
 }
 
-.goal {
-  margin-bottom: 22px;
-}
-
-.goal-title {
-  display: flex;
-  justify-content: space-between;
+.days {
+  font-size: 48px;
   font-weight: bold;
-  margin-bottom: 8px;
+  color: #2e8b57;
+  margin: 20px 0;
+}
+
+.date {
+  color: #888;
 }
 </style>
