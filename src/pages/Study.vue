@@ -6,8 +6,13 @@
 
     <PomodoroTimer />
 
+    <SearchBar
+      v-model:keyword="keyword"
+      v-model:subject="subject"
+    />
+
     <StudyRecord
-      :records="studyStore.records"
+      :records="filteredRecords"
       @delete="studyStore.deleteRecord"
       @edit="studyStore.updateRecord"
     />
@@ -15,12 +20,31 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from "vue"
 import StudyTimer from "../components/StudyTimer.vue"
 import PomodoroTimer from "../components/PomodoroTimer.vue"
 import StudyRecord from "../components/StudyRecord.vue"
+import SearchBar from "../components/SearchBar.vue"
 import { useStudyStore } from "../stores/study"
 
 const studyStore = useStudyStore()
+
+const keyword = ref("")
+const subject = ref("全部")
+
+const filteredRecords = computed(() => {
+  return studyStore.records.filter(item => {
+    const matchSubject =
+      subject.value === "全部" || item.subject === subject.value
+
+    const text = `${item.chapter} ${item.content}`
+
+    const matchKeyword =
+      keyword.value === "" || text.includes(keyword.value)
+
+    return matchSubject && matchKeyword
+  })
+})
 </script>
 
 <style scoped>
