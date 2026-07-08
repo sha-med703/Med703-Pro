@@ -9,6 +9,7 @@
     <StudyRecord
       :records="studyStore.records"
       @delete="studyStore.deleteRecord"
+      @edit="studyStore.updateRecord"
     />
   </div>
 </template>

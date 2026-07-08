@@ -18,15 +18,30 @@
         <p class="date">{{ item.date }}</p>
       </div>
 
-      <button @click="deleteRecord(index)">
-        删除
-      </button>
+      <div class="actions">
+        <button class="edit" @click="openEdit(item)">
+          编辑
+        </button>
+
+        <button class="delete" @click="deleteRecord(index)">
+          删除
+        </button>
+      </div>
     </div>
+
+    <EditRecordDialog
+      v-if="editingRecord"
+      :record="editingRecord"
+      @cancel="editingRecord = null"
+      @save="saveEdit"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue"
 import type { StudyRecord } from "../types/study"
+import EditRecordDialog from "./EditRecordDialog.vue"
 
 defineProps<{
   records: StudyRecord[]
@@ -34,7 +49,19 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: "delete", index: number): void
+  (e: "edit", record: StudyRecord): void
 }>()
+
+const editingRecord = ref<StudyRecord | null>(null)
+
+function openEdit(record: StudyRecord) {
+  editingRecord.value = { ...record }
+}
+
+function saveEdit(record: StudyRecord) {
+  emit("edit", record)
+  editingRecord.value = null
+}
 
 function deleteRecord(index: number) {
   emit("delete", index)
@@ -54,6 +81,7 @@ function deleteRecord(index: number) {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   padding: 15px 0;
   border-bottom: 1px solid #eee;
 }
@@ -67,12 +95,24 @@ function deleteRecord(index: number) {
   font-size: 14px;
 }
 
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
 button {
-  background: #e74c3c;
   color: white;
   border: none;
   padding: 8px 14px;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.edit {
+  background: #2e8b57;
+}
+
+.delete {
+  background: #e74c3c;
 }
 </style>

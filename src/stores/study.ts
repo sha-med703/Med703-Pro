@@ -59,10 +59,19 @@ export const useStudyStore = defineStore("study", () => {
     records.value.splice(index, 1)
   }
 
+  function updateRecord(record: StudyRecord) {
+    const index = records.value.findIndex(item => item.id === record.id)
+
+    if (index !== -1) {
+      records.value[index] = record
+    }
+  }
+
   return {
     records,
     streakDays,
     addRecord,
-    deleteRecord
+    deleteRecord,
+    updateRecord
   }
 })
