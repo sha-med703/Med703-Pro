@@ -10,6 +10,7 @@
       <RouterLink to="/study">📚 学习</RouterLink>
       <RouterLink to="/review">🔁 复习</RouterLink>
       <RouterLink to="/report">📈 报告</RouterLink>
+      <RouterLink to="/coach">🤖 AI 教练</RouterLink>
       <RouterLink to="/settings">⚙ 设置</RouterLink>
     </nav>
 
@@ -73,7 +74,7 @@ import { RouterLink, RouterView } from "vue-router"
   color: white;
 }
 
-.page{
-  margin-top:20px;
+.page {
+  margin-top: 20px;
 }
 </style>

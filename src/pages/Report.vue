@@ -24,6 +24,14 @@
 
     <el-card class="card">
       <template #header>
+        <strong>🔥 最近 56 天学习热力图</strong>
+      </template>
+
+      <StudyHeatmap :days="last56Days" />
+    </el-card>
+
+    <el-card class="card">
+      <template #header>
         <strong>🥧 科目学习占比</strong>
       </template>
 
@@ -56,6 +64,7 @@ import { useStudyStore } from "../stores/study"
 import { SUBJECTS } from "../constants/subjects"
 import StudyTrendChart from "../components/report/StudyTrendChart.vue"
 import SubjectPieChart from "../components/report/SubjectPieChart.vue"
+import StudyHeatmap from "../components/report/StudyHeatmap.vue"
 
 const studyStore = useStudyStore()
 
@@ -98,6 +107,28 @@ const last7Days = computed(() => {
   const result = []
 
   for (let i = 6; i >= 0; i--) {
+    const date = new Date()
+    date.setDate(date.getDate() - i)
+
+    const dateText = date.toISOString().slice(0, 10)
+
+    const duration = studyStore.records
+      .filter(item => item.date === dateText)
+      .reduce((sum, item) => sum + (item.duration || 0), 0)
+
+    result.push({
+      date: dateText,
+      duration
+    })
+  }
+
+  return result
+})
+
+const last56Days = computed(() => {
+  const result = []
+
+  for (let i = 55; i >= 0; i--) {
     const date = new Date()
     date.setDate(date.getDate() - i)
 

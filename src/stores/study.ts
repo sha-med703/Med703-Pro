@@ -24,10 +24,14 @@ export const useStudyStore = defineStore("study", () => {
     { deep: true }
   )
 
-  const streakDays = computed(() => {
-    const dates = Array.from(
+  const studyDates = computed(() => {
+    return Array.from(
       new Set(records.value.map(item => item.date))
-    ).sort((a, b) => b.localeCompare(a))
+    ).sort()
+  })
+
+  const streakDays = computed(() => {
+    const dates = [...studyDates.value].sort((a, b) => b.localeCompare(a))
 
     if (dates.length === 0) return 0
 
@@ -46,6 +50,45 @@ export const useStudyStore = defineStore("study", () => {
     }
 
     return streak
+  })
+
+  const longestStreak = computed(() => {
+    const dates = studyDates.value
+
+    if (dates.length === 0) return 0
+
+    let longest = 1
+    let current = 1
+
+    for (let i = 1; i < dates.length; i++) {
+      const prev = new Date(dates[i - 1])
+      const now = new Date(dates[i])
+
+      const diff =
+        (now.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24)
+
+      if (diff === 1) {
+        current++
+        longest = Math.max(longest, current)
+      } else {
+        current = 1
+      }
+    }
+
+    return longest
+  })
+
+  const monthStudyDays = computed(() => {
+    const now = new Date()
+    const monthText = now.toISOString().slice(0, 7)
+
+    return studyDates.value.filter(date => {
+      return date.startsWith(monthText)
+    }).length
+  })
+
+  const totalRecords = computed(() => {
+    return records.value.length
   })
 
   function addRecord(record: StudyRecord) {
@@ -69,7 +112,11 @@ export const useStudyStore = defineStore("study", () => {
 
   return {
     records,
+    studyDates,
     streakDays,
+    longestStreak,
+    monthStudyDays,
+    totalRecords,
     addRecord,
     deleteRecord,
     updateRecord

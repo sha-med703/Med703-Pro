@@ -1,5 +1,178 @@
-# Vue 3 + TypeScript + Vite
+# 🎓 Med703 Pro
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+> AI 驱动的医学考研智能学习助手
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+---
+
+## 📖 项目简介
+
+Med703 Pro 是一款专为医学考研打造的智能学习管理系统。
+
+项目主要用于帮助考研学生进行：
+
+- 📚 学习计时
+- 🍅 番茄钟
+- 📈 学习统计
+- 🔥 GitHub 风格学习热力图
+- 📅 艾宾浩斯复习
+- 🎯 每日学习目标
+- ⚙️ 个性化设置
+- 🤖 AI 学习教练（开发中）
+
+---
+
+# ✨ 当前功能
+
+## 🏠 首页
+
+- 考研倒计时
+- 学习成就
+- 今日统计
+- 今日目标
+- 今日待复习
+
+---
+
+## 📚 学习中心
+
+- 学习计时器
+- 番茄钟
+- 学习记录
+- 编辑记录
+- 删除记录
+- 搜索
+- 科目筛选
+
+支持：
+
+- 生理
+- 生化
+- 病理
+- 病生
+- 免疫
+- 政治
+- 英语一
+
+---
+
+## 🔄 复习中心
+
+- 艾宾浩斯遗忘曲线
+- 今日待复习
+- 自动生成复习任务
+
+---
+
+## 📈 学习报告
+
+- 学习总时长
+- 最近7天学习趋势
+- GitHub 风格学习热力图
+- 科目学习占比
+- 各科学习统计
+
+---
+
+## ⚙ 设置中心
+
+支持：
+
+- 修改每日学习目标
+- 修改考研日期
+- 清空学习记录
+
+---
+
+# 🛠 技术栈
+
+- Vue 3
+- TypeScript
+- Vite
+- Pinia
+- Vue Router
+- Element Plus
+- ECharts
+- Git
+- GitHub
+
+---
+
+# 📂 项目结构
+
+```text
+src
+├── components
+├── pages
+├── stores
+├── router
+├── constants
+├── types
+└── utils
+```
+
+---
+
+# 🚀 快速开始
+
+安装依赖：
+
+```bash
+npm install
+```
+
+启动项目：
+
+```bash
+npm run dev
+```
+
+打包：
+
+```bash
+npm run build
+```
+
+---
+
+# 📅 开发路线
+
+## ✅ V1.x
+
+- 学习计时
+- 番茄钟
+- 学习记录
+- 学习统计
+
+## ✅ V2.0
+
+- ECharts 图表
+- GitHub 热力图
+- 学习成就
+- 设置中心
+
+## 🚀 V2.2（开发中）
+
+- AI 学习教练
+- AI 学习建议
+- AI 学习日报
+
+## 📌 V3.0（计划中）
+
+- 云同步
+- 多设备同步
+- 微信小程序
+- AI 智能复习规划
+
+---
+
+# 👨‍💻 作者
+
+**sha**
+
+---
+
+# ⭐ 项目目标
+
+打造一款真正适合医学考研学生长期使用的智能学习助手。
+
+持续开发中……

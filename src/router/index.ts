@@ -18,6 +18,10 @@ const routes = [
     component: () => import("../pages/Report.vue")
   },
   {
+    path: "/coach",
+    component: () => import("../pages/Coach.vue")
+  },
+  {
     path: "/settings",
     component: () => import("../pages/Settings.vue")
   }
