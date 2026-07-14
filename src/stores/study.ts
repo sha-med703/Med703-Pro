@@ -189,7 +189,7 @@ export const useStudyStore = defineStore("study", () => {
     records.value.unshift(record)
 
     const reviewStore = useReviewStore()
-    reviewStore.addReviewTasks(record)
+    await reviewStore.addReviewTasks(record)
 
     const {
       data: { user },
@@ -229,7 +229,12 @@ export const useStudyStore = defineStore("study", () => {
 
     if (!record) return
 
+    const oldRecord = { ...record }
+
     records.value.splice(index, 1)
+
+    const reviewStore = useReviewStore()
+    await reviewStore.deleteTasksByStudyRecordId(record.id)
 
     const { error } = await supabase
       .from("study_records")
@@ -238,11 +243,12 @@ export const useStudyStore = defineStore("study", () => {
 
     if (error) {
       console.error("云端学习记录删除失败：", error)
-      records.value.splice(index, 0, record)
+
+      records.value.splice(index, 0, oldRecord)
       return
     }
 
-    console.log("云端学习记录已删除")
+    console.log("学习记录及关联复习任务已删除")
   }
 
   async function updateRecord(record: StudyRecord) {

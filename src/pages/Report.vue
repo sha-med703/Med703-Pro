@@ -11,6 +11,10 @@
       <p>⏱ 学习总时长：{{ totalTimeText }}</p>
     </el-card>
 
+    <MonthlyStudyCalendar
+      :records="studyStore.records"
+    />
+
     <el-card class="card">
       <template #header>
         <strong>📈 最近 7 天学习趋势</strong>
@@ -62,11 +66,20 @@
 import { computed } from "vue"
 import { useStudyStore } from "../stores/study"
 import { SUBJECTS } from "../constants/subjects"
+import MonthlyStudyCalendar from "../components/report/MonthlyStudyCalendar.vue"
 import StudyTrendChart from "../components/report/StudyTrendChart.vue"
 import SubjectPieChart from "../components/report/SubjectPieChart.vue"
 import StudyHeatmap from "../components/report/StudyHeatmap.vue"
 
 const studyStore = useStudyStore()
+
+function getDateText(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+
+  return `${year}-${month}-${day}`
+}
 
 function formatTime(total: number) {
   const h = Math.floor(total / 3600)
@@ -104,13 +117,16 @@ const activeSubjectStats = computed(() => {
 })
 
 const last7Days = computed(() => {
-  const result = []
+  const result: {
+    date: string
+    duration: number
+  }[] = []
 
   for (let i = 6; i >= 0; i--) {
     const date = new Date()
     date.setDate(date.getDate() - i)
 
-    const dateText = date.toISOString().slice(0, 10)
+    const dateText = getDateText(date)
 
     const duration = studyStore.records
       .filter(item => item.date === dateText)
@@ -126,13 +142,16 @@ const last7Days = computed(() => {
 })
 
 const last56Days = computed(() => {
-  const result = []
+  const result: {
+    date: string
+    duration: number
+  }[] = []
 
   for (let i = 55; i >= 0; i--) {
     const date = new Date()
     date.setDate(date.getDate() - i)
 
-    const dateText = date.toISOString().slice(0, 10)
+    const dateText = getDateText(date)
 
     const duration = studyStore.records
       .filter(item => item.date === dateText)
@@ -160,11 +179,22 @@ const last56Days = computed(() => {
 .stat {
   display: flex;
   justify-content: space-between;
+  gap: 16px;
   padding: 10px 0;
   border-bottom: 1px solid #eee;
 }
 
 .stat:last-child {
   border-bottom: none;
+}
+
+@media (max-width: 600px) {
+  .stat {
+    align-items: flex-start;
+  }
+
+  .stat strong {
+    text-align: right;
+  }
 }
 </style>

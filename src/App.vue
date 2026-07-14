@@ -55,10 +55,12 @@ import { RouterLink, RouterView, useRouter } from "vue-router"
 import { ElMessage } from "element-plus"
 import { useAuthStore } from "./stores/auth"
 import { useStudyStore } from "./stores/study"
+import { useReviewStore } from "./stores/review"
 
 const router = useRouter()
 const authStore = useAuthStore()
 const studyStore = useStudyStore()
+const reviewStore = useReviewStore()
 
 onMounted(async () => {
   await authStore.initializeAuth()
@@ -68,12 +70,17 @@ watch(
   () => authStore.user?.id,
   async (userId, previousUserId) => {
     if (userId) {
-      await studyStore.loadCloudRecords()
+      await Promise.all([
+        studyStore.loadCloudRecords(),
+        reviewStore.loadCloudTasks()
+      ])
+
       return
     }
 
     if (previousUserId) {
       studyStore.clearRecords()
+      reviewStore.clearTasks()
     }
   },
   { immediate: true }
@@ -88,6 +95,8 @@ async function handleSignOut() {
   }
 
   studyStore.clearRecords()
+  reviewStore.clearTasks()
+
   ElMessage.success("已退出登录")
   await router.push("/auth")
 }
