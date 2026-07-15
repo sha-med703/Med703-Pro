@@ -132,13 +132,27 @@
           <div class="result-title">
             <strong>🤖 AI 教练回复</strong>
 
-            <el-button
-              text
-              type="primary"
-              @click="copyAnswer"
-            >
-              复制内容
-            </el-button>
+            <div class="result-actions">
+              <el-button
+                v-if="aiMode === 'plan'"
+                type="success"
+                plain
+                size="small"
+                :loading="savingPlan"
+                :disabled="savingPlan"
+                @click="saveCurrentPlan"
+              >
+                保存这份计划
+              </el-button>
+
+              <el-button
+                text
+                type="primary"
+                @click="copyAnswer"
+              >
+                复制内容
+              </el-button>
+            </div>
           </div>
 
           <div class="answer-content">
@@ -249,6 +263,7 @@ import { useStudyStore } from "../stores/study"
 import { useSettingsStore } from "../stores/settings"
 import { useReviewStore } from "../stores/review"
 import { useAuthStore } from "../stores/auth"
+import { useAiPlanStore } from "../stores/aiPlan"
 import { supabase } from "../lib/supabase"
 
 type AiMode = "plan" | "analysis" | "question"
@@ -264,6 +279,7 @@ const studyStore = useStudyStore()
 const settingsStore = useSettingsStore()
 const reviewStore = useReviewStore()
 const authStore = useAuthStore()
+const aiPlanStore = useAiPlanStore()
 
 const aiMode = ref<AiMode>("plan")
 const userMessage = ref("")
@@ -271,6 +287,7 @@ const preferences = ref("")
 const aiAnswer = ref("")
 const aiError = ref("")
 const aiLoading = ref(false)
+const savingPlan = ref(false)
 
 function getDateText(date: Date) {
   const year = date.getFullYear()
@@ -537,19 +554,20 @@ function buildStudySummary() {
     )
   }
 
-  const subjectLines =
-    Array.from(subjectMap.entries())
-      .sort((a, b) => b[1] - a[1])
-      .map(([subject, duration]) => {
-        return `- ${subject}：${formatTime(duration)}`
-      })
+  const subjectLines = Array.from(subjectMap.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([subject, duration]) => {
+      return `- ${subject}：${formatTime(duration)}`
+    })
 
   const goalLines = settingsStore.goals.map(goal => {
     return `- ${goal.subject}：每日目标 ${goal.targetHours} 小时`
   })
 
   const pendingTasks = reviewStore.tasks
-    .filter(task => !task.done && task.reviewDate <= getToday())
+    .filter(task => {
+      return !task.done && task.reviewDate <= getToday()
+    })
     .slice(0, 20)
 
   const reviewLines = pendingTasks.map(task => {
@@ -665,6 +683,58 @@ async function askCoach() {
   }
 }
 
+async function saveCurrentPlan() {
+  if (!authStore.user) {
+    ElMessage.warning("请先登录账号")
+    return
+  }
+
+  if (!aiAnswer.value.trim()) {
+    ElMessage.warning("当前没有可保存的 AI 计划")
+    return
+  }
+
+  if (aiMode.value !== "plan") {
+    ElMessage.warning("只有学习计划可以保存")
+    return
+  }
+
+  savingPlan.value = true
+
+  try {
+    const result = await aiPlanStore.savePlan({
+      planDate: getToday(),
+      title: "AI 每日学习计划",
+      userRequest: [
+        userMessage.value.trim(),
+        preferences.value.trim()
+      ]
+        .filter(Boolean)
+        .join("\n"),
+      aiContent: aiAnswer.value.trim()
+    })
+
+    if (!result.success) {
+      ElMessage.error(
+        result.message || "保存 AI 学习计划失败"
+      )
+      return
+    }
+
+    ElMessage.success("AI 学习计划已保存")
+  } catch (error) {
+    console.error("保存 AI 学习计划失败：", error)
+
+    ElMessage.error(
+      error instanceof Error
+        ? error.message
+        : "保存 AI 学习计划失败"
+    )
+  } finally {
+    savingPlan.value = false
+  }
+}
+
 function clearAiResult() {
   userMessage.value = ""
   preferences.value = ""
@@ -719,8 +789,8 @@ async function copyAnswer() {
 .input-section label {
   display: block;
   margin-bottom: 8px;
-  font-weight: bold;
   color: #333;
+  font-weight: bold;
 }
 
 .quick-actions {
@@ -754,6 +824,12 @@ async function copyAnswer() {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 12px;
+}
+
+.result-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .answer-content {
@@ -808,6 +884,16 @@ async function copyAnswer() {
   .button-row .el-button {
     width: 100%;
     margin-left: 0;
+  }
+
+  .result-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .result-actions {
+    width: 100%;
+    flex-wrap: wrap;
   }
 
   .row {

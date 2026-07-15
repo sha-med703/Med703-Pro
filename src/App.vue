@@ -4,7 +4,10 @@
       <h1>🎓 Med703 Pro</h1>
       <p>703考研智能学习助手</p>
 
-      <div v-if="authStore.loading" class="account-status">
+      <div
+        v-if="authStore.loading"
+        class="account-status"
+      >
         正在检查登录状态……
       </div>
 
@@ -24,23 +27,46 @@
         </el-button>
       </div>
 
-      <div v-else class="account-status">
+      <div
+        v-else
+        class="account-status"
+      >
         <span>当前未登录，学习记录暂时保存在本机。</span>
       </div>
     </header>
 
     <nav class="nav">
-      <RouterLink to="/">🏠 首页</RouterLink>
-      <RouterLink to="/study">📚 学习</RouterLink>
-      <RouterLink to="/review">🔁 复习</RouterLink>
-      <RouterLink to="/report">📈 报告</RouterLink>
-      <RouterLink to="/coach">🤖 AI 教练</RouterLink>
+      <RouterLink to="/">
+        🏠 首页
+      </RouterLink>
+
+      <RouterLink to="/study">
+        📚 学习
+      </RouterLink>
+
+      <RouterLink to="/review">
+        🔁 复习
+      </RouterLink>
+
+      <RouterLink to="/report">
+        📈 报告
+      </RouterLink>
+
+      <RouterLink to="/coach">
+        🤖 AI 教练
+      </RouterLink>
+
+      <RouterLink to="/plans">
+        📅 AI 计划
+      </RouterLink>
 
       <RouterLink to="/auth">
         {{ authStore.user ? "👤 账号" : "🔐 登录" }}
       </RouterLink>
 
-      <RouterLink to="/settings">⚙ 设置</RouterLink>
+      <RouterLink to="/settings">
+        ⚙ 设置
+      </RouterLink>
     </nav>
 
     <main class="page">
@@ -51,16 +77,24 @@
 
 <script setup lang="ts">
 import { onMounted, watch } from "vue"
-import { RouterLink, RouterView, useRouter } from "vue-router"
+import {
+  RouterLink,
+  RouterView,
+  useRouter
+} from "vue-router"
 import { ElMessage } from "element-plus"
+
 import { useAuthStore } from "./stores/auth"
 import { useStudyStore } from "./stores/study"
 import { useReviewStore } from "./stores/review"
+import { useAiPlanStore } from "./stores/aiplan"
 
 const router = useRouter()
+
 const authStore = useAuthStore()
 const studyStore = useStudyStore()
 const reviewStore = useReviewStore()
+const aiPlanStore = useAiPlanStore()
 
 onMounted(async () => {
   await authStore.initializeAuth()
@@ -72,7 +106,8 @@ watch(
     if (userId) {
       await Promise.all([
         studyStore.loadCloudRecords(),
-        reviewStore.loadCloudTasks()
+        reviewStore.loadCloudTasks(),
+        aiPlanStore.loadPlans()
       ])
 
       return
@@ -81,9 +116,12 @@ watch(
     if (previousUserId) {
       studyStore.clearRecords()
       reviewStore.clearTasks()
+      aiPlanStore.clearPlans()
     }
   },
-  { immediate: true }
+  {
+    immediate: true
+  }
 )
 
 async function handleSignOut() {
@@ -96,8 +134,10 @@ async function handleSignOut() {
 
   studyStore.clearRecords()
   reviewStore.clearTasks()
+  aiPlanStore.clearPlans()
 
   ElMessage.success("已退出登录")
+
   await router.push("/auth")
 }
 </script>
@@ -159,6 +199,11 @@ async function handleSignOut() {
   text-decoration: none;
   font-weight: bold;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s;
+}
+
+.nav a:hover {
+  transform: translateY(-2px);
 }
 
 .nav a.router-link-active {
