@@ -57,7 +57,10 @@
       </el-button>
     </el-empty>
 
-    <div v-else class="plan-list">
+    <div
+      v-else
+      class="plan-list"
+    >
       <el-card
         v-for="plan in filteredPlans"
         :key="plan.id"
@@ -66,14 +69,18 @@
         <template #header>
           <div class="plan-header">
             <div>
-              <strong>{{ plan.title }}</strong>
+              <strong>
+                {{ plan.title }}
+              </strong>
 
               <p class="plan-date">
                 📅 {{ plan.planDate }}
               </p>
             </div>
 
-            <el-tag :type="getStatusType(plan.status)">
+            <el-tag
+              :type="getStatusType(plan.status)"
+            >
               {{ getStatusText(plan.status) }}
             </el-tag>
           </div>
@@ -84,7 +91,10 @@
           class="request-box"
         >
           <strong>你的要求</strong>
-          <p>{{ plan.userRequest }}</p>
+
+          <p>
+            {{ plan.userRequest }}
+          </p>
         </div>
 
         <div class="plan-content">
@@ -92,7 +102,8 @@
         </div>
 
         <p class="updated-time">
-          最后更新：{{ formatDateTime(plan.updatedAt) }}
+          最后更新：
+          {{ formatDateTime(plan.updatedAt) }}
         </p>
 
         <div class="actions">
@@ -174,25 +185,37 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue"
+import {
+  computed,
+  onMounted,
+  ref
+} from "vue"
+
 import { useRouter } from "vue-router"
+
 import {
   ElMessage,
   ElMessageBox
 } from "element-plus"
+
 import { Loading } from "@element-plus/icons-vue"
+
 import {
   useAiPlanStore,
   type AiPlan,
   type AiPlanStatus
-} from "../stores/aiPlan"
+} from "../stores/aiplan"
 
-type StatusFilter = AiPlanStatus | "all"
+type StatusFilter =
+  | AiPlanStatus
+  | "all"
 
 const router = useRouter()
 const aiPlanStore = useAiPlanStore()
 
-const statusFilter = ref<StatusFilter>("all")
+const statusFilter =
+  ref<StatusFilter>("all")
+
 const editorVisible = ref(false)
 const editingPlanId = ref("")
 const editingContent = ref("")
@@ -204,7 +227,10 @@ const filteredPlans = computed(() => {
   }
 
   return aiPlanStore.plans.filter(plan => {
-    return plan.status === statusFilter.value
+    return (
+      plan.status ===
+      statusFilter.value
+    )
   })
 })
 
@@ -212,20 +238,43 @@ onMounted(async () => {
   await aiPlanStore.loadPlans()
 })
 
-function getStatusText(status: AiPlanStatus) {
-  if (status === "completed") return "已完成"
-  if (status === "archived") return "已归档"
+function getStatusText(
+  status: AiPlanStatus
+) {
+  if (status === "completed") {
+    return "已完成"
+  }
+
+  if (status === "archived") {
+    return "已归档"
+  }
+
   return "进行中"
 }
 
-function getStatusType(status: AiPlanStatus) {
-  if (status === "completed") return "success"
-  if (status === "archived") return "info"
+function getStatusType(
+  status: AiPlanStatus
+):
+  | "success"
+  | "info"
+  | "warning" {
+  if (status === "completed") {
+    return "success"
+  }
+
+  if (status === "archived") {
+    return "info"
+  }
+
   return "warning"
 }
 
-function formatDateTime(value: string) {
-  if (!value) return "未知"
+function formatDateTime(
+  value: string
+) {
+  if (!value) {
+    return "未知"
+  }
 
   const date = new Date(value)
 
@@ -233,14 +282,19 @@ function formatDateTime(value: string) {
     return value
   }
 
-  return date.toLocaleString("zh-CN", {
-    hour12: false
-  })
+  return date.toLocaleString(
+    "zh-CN",
+    {
+      hour12: false
+    }
+  )
 }
 
 function openEditor(plan: AiPlan) {
   editingPlanId.value = plan.id
-  editingContent.value = plan.aiContent
+  editingContent.value =
+    plan.aiContent
+
   editorVisible.value = true
 }
 
@@ -251,80 +305,140 @@ function closeEditor() {
 }
 
 async function saveEditedPlan() {
-  const content = editingContent.value.trim()
+  const content =
+    editingContent.value.trim()
 
   if (!content) {
-    ElMessage.warning("计划内容不能为空")
+    ElMessage.warning(
+      "计划内容不能为空"
+    )
+
+    return
+  }
+
+  if (!editingPlanId.value) {
+    ElMessage.error(
+      "没有找到需要编辑的计划"
+    )
+
     return
   }
 
   saving.value = true
 
-  const result = await aiPlanStore.updatePlanContent(
-    editingPlanId.value,
-    content
+  try {
+    const result =
+      await aiPlanStore
+        .updatePlanContent(
+          editingPlanId.value,
+          content
+        )
+
+    if (!result.success) {
+      ElMessage.error(
+        result.message ||
+          "修改计划失败"
+      )
+
+      return
+    }
+
+    ElMessage.success(
+      "AI 学习计划已更新"
+    )
+
+    closeEditor()
+  } catch (error) {
+    console.error(
+      "修改 AI 学习计划失败：",
+      error
+    )
+
+    ElMessage.error(
+      error instanceof Error
+        ? error.message
+        : "修改计划失败"
+    )
+  } finally {
+    saving.value = false
+  }
+}
+
+async function handleComplete(
+  id: string
+) {
+  const result =
+    await aiPlanStore
+      .completePlan(id)
+
+  if (!result.success) {
+    ElMessage.error(
+      result.message ||
+        "更新状态失败"
+    )
+
+    return
+  }
+
+  ElMessage.success(
+    "计划已标记为完成"
   )
+}
 
-  saving.value = false
+async function handleActivate(
+  id: string
+) {
+  const result =
+    await aiPlanStore
+      .activatePlan(id)
 
   if (!result.success) {
     ElMessage.error(
-      result.message || "修改计划失败"
+      result.message ||
+        "恢复计划失败"
     )
+
     return
   }
 
-  ElMessage.success("AI 学习计划已更新")
-  closeEditor()
+  ElMessage.success(
+    "计划已恢复为进行中"
+  )
 }
 
-async function handleComplete(id: string) {
-  const result = await aiPlanStore.completePlan(id)
+async function handleArchive(
+  id: string
+) {
+  const result =
+    await aiPlanStore
+      .archivePlan(id)
 
   if (!result.success) {
     ElMessage.error(
-      result.message || "更新状态失败"
+      result.message ||
+        "归档计划失败"
     )
+
     return
   }
 
-  ElMessage.success("计划已标记为完成")
+  ElMessage.success(
+    "计划已归档"
+  )
 }
 
-async function handleActivate(id: string) {
-  const result = await aiPlanStore.activatePlan(id)
-
-  if (!result.success) {
-    ElMessage.error(
-      result.message || "恢复计划失败"
-    )
-    return
-  }
-
-  ElMessage.success("计划已恢复为进行中")
-}
-
-async function handleArchive(id: string) {
-  const result = await aiPlanStore.archivePlan(id)
-
-  if (!result.success) {
-    ElMessage.error(
-      result.message || "归档计划失败"
-    )
-    return
-  }
-
-  ElMessage.success("计划已归档")
-}
-
-async function handleDelete(id: string) {
+async function handleDelete(
+  id: string
+) {
   try {
     await ElMessageBox.confirm(
       "确定删除这份 AI 学习计划吗？删除后无法恢复。",
       "删除确认",
       {
-        confirmButtonText: "确定删除",
-        cancelButtonText: "取消",
+        confirmButtonText:
+          "确定删除",
+        cancelButtonText:
+          "取消",
         type: "warning"
       }
     )
@@ -332,16 +446,28 @@ async function handleDelete(id: string) {
     return
   }
 
-  const result = await aiPlanStore.deletePlan(id)
+  const result =
+    await aiPlanStore
+      .deletePlan(id)
 
   if (!result.success) {
     ElMessage.error(
-      result.message || "删除计划失败"
+      result.message ||
+        "删除计划失败"
     )
+
     return
   }
 
-  ElMessage.success("AI 学习计划已删除")
+  if (
+    editingPlanId.value === id
+  ) {
+    closeEditor()
+  }
+
+  ElMessage.success(
+    "AI 学习计划已删除"
+  )
 }
 </script>
 
@@ -364,6 +490,7 @@ async function handleDelete(id: string) {
 .page-header p {
   margin: 8px 0 0;
   color: #777;
+  line-height: 1.6;
 }
 
 .filter-card {
@@ -396,6 +523,12 @@ async function handleDelete(id: string) {
   gap: 16px;
 }
 
+.plan-header strong {
+  color: #333;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
 .plan-date {
   margin: 8px 0 0;
   color: #777;
@@ -409,10 +542,16 @@ async function handleDelete(id: string) {
   background: #f6f7f8;
 }
 
+.request-box strong {
+  color: #444;
+}
+
 .request-box p {
   margin: 8px 0 0;
+  color: #555;
   line-height: 1.7;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .plan-content {
@@ -420,6 +559,7 @@ async function handleDelete(id: string) {
   border: 1px solid #d8efe1;
   border-radius: 10px;
   background: #f7fcf9;
+  color: #333;
   line-height: 1.8;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -438,7 +578,15 @@ async function handleDelete(id: string) {
   margin-top: 18px;
 }
 
-@media (max-width: 600px) {
+.actions :deep(.el-button + .el-button) {
+  margin-left: 0;
+}
+
+@media (max-width: 760px) {
+  .plans-page {
+    margin-top: 12px;
+  }
+
   .page-header {
     flex-direction: column;
   }
@@ -451,8 +599,16 @@ async function handleDelete(id: string) {
     overflow-x: auto;
   }
 
+  .filter-card :deep(.el-card__body) {
+    min-width: max-content;
+  }
+
   .plan-header {
     flex-direction: column;
+  }
+
+  .plan-content {
+    padding: 14px;
   }
 
   .actions {
@@ -462,6 +618,11 @@ async function handleDelete(id: string) {
   .actions .el-button {
     width: 100%;
     margin-left: 0;
+  }
+
+  :deep(.el-dialog) {
+    width: calc(100% - 24px) !important;
+    margin: 12px auto;
   }
 }
 </style>

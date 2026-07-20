@@ -2,7 +2,9 @@
   <div class="study-page">
     <h2>📚 学习中心</h2>
 
-    <StudyTimer @finish="studyStore.addRecord" />
+    <StudyTimer
+      @finish="studyStore.addRecord"
+    />
 
     <PomodoroTimer />
 
@@ -35,12 +37,15 @@ const subject = ref("全部")
 const filteredRecords = computed(() => {
   return studyStore.records.filter(item => {
     const matchSubject =
-      subject.value === "全部" || item.subject === subject.value
+      subject.value === "全部" ||
+      item.subject === subject.value
 
-    const text = `${item.chapter} ${item.content}`
+    const text =
+      `${item.chapter ?? ""} ${item.content ?? ""}`
 
     const matchKeyword =
-      keyword.value === "" || text.includes(keyword.value)
+      keyword.value.trim() === "" ||
+      text.includes(keyword.value.trim())
 
     return matchSubject && matchKeyword
   })
@@ -49,6 +54,10 @@ const filteredRecords = computed(() => {
 
 <style scoped>
 .study-page {
+  margin-top: 20px;
+}
+
+.study-page > * + * {
   margin-top: 20px;
 }
 </style>
